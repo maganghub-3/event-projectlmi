@@ -1,0 +1,473 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// ENUM
+// ============================================================
+
+enum PeranPengguna {
+  PEMBELI
+  ADMIN_EVENT
+  SUPER_ADMIN
+
+  @@map("peran_pengguna")
+}
+
+enum StatusPengguna {
+  AKTIF
+  DIBLOKIR
+
+  @@map("status_pengguna")
+}
+
+enum StatusPenyelenggara {
+  AKTIF
+  NONAKTIF
+
+  @@map("status_penyelenggara")
+}
+
+enum VisibilitasEvent {
+  PUBLIK
+  PRIVAT
+
+  @@map("visibilitas_event")
+}
+
+enum StatusEvent {
+  DRAFT
+  PUBLISH
+
+  @@map("status_event")
+}
+
+enum JenisPotongan {
+  PERSEN
+  NOMINAL
+
+  @@map("jenis_potongan")
+}
+
+enum JenisBiaya {
+  PERSEN
+  NOMINAL
+
+  @@map("jenis_biaya")
+}
+
+enum SumberPesanan {
+  ONLINE
+  OFFLINE
+
+  @@map("sumber_pesanan")
+}
+
+enum StatusPesanan {
+  MENUNGGU
+  DIBAYAR
+  KEDALUWARSA
+  DIBATALKAN
+
+  @@map("status_pesanan")
+}
+
+enum MetodePembayaran {
+  VA
+  QRIS
+  EWALLET
+  KARTU_KREDIT
+  TUNAI
+
+  @@map("metode_pembayaran")
+}
+
+enum StatusPembayaran {
+  MENUNGGU
+  BERHASIL
+  GAGAL
+  KEDALUWARSA
+
+  @@map("status_pembayaran")
+}
+
+enum StatusTiket {
+  VALID
+  TERPAKAI
+  DIBATALKAN
+
+  @@map("status_tiket")
+}
+
+enum MetodeValidasi {
+  OTOMATIS
+  MANUAL
+
+  @@map("metode_validasi")
+}
+
+enum HasilValidasi {
+  BERHASIL
+  DITOLAK
+
+  @@map("hasil_validasi")
+}
+
+enum StatusPenarikan {
+  MENUNGGU
+  DISETUJUI
+  DITOLAK
+  DICAIRKAN
+
+  @@map("status_penarikan")
+}
+
+enum StatusBerita {
+  DRAFT
+  PUBLISH
+
+  @@map("status_berita")
+}
+
+// ============================================================
+// AKUN
+// ============================================================
+
+model Pengguna {
+  id              Int            @id @default(autoincrement())
+  penyelenggaraId Int?           @unique @map("penyelenggara_id")
+  nama            String         @db.VarChar(150)
+  email           String         @unique @db.VarChar(191)
+  kataSandiHash   String         @map("kata_sandi_hash") @db.VarChar(255)
+  noHp            String?        @map("no_hp") @db.VarChar(30)
+  peran           PeranPengguna  @default(PEMBELI)
+  status          StatusPengguna @default(AKTIF)
+  kota            String?        @db.VarChar(100)
+  tanggalLahir    DateTime?      @map("tanggal_lahir") @db.Date
+  noIdentitas     String?        @map("no_identitas") @db.VarChar(50)
+  dibuatPada      DateTime       @default(now()) @map("dibuat_pada")
+
+  penyelenggara Penyelenggara? @relation(fields: [penyelenggaraId], references: [id], onDelete: Restrict)
+
+  pesananDibeli  Pesanan[]        @relation("PesananPembeli")
+  pesananDijual  Pesanan[]        @relation("PesananPenjual")
+  validasiTiket  ValidasiTiket[]
+  resetKataSandi ResetKataSandi[]
+  logAudit       LogAudit[]
+  berita         Berita[]
+
+  @@index([penyelenggaraId])
+  @@index([peran])
+  @@map("pengguna")
+}
+
+model ResetKataSandi {
+  id              Int       @id @default(autoincrement())
+  penggunaId      Int       @map("pengguna_id")
+  token           String    @unique @db.VarChar(191)
+  kedaluwarsaPada DateTime  @map("kedaluwarsa_pada")
+  digunakanPada   DateTime? @map("digunakan_pada")
+  dibuatPada      DateTime  @default(now()) @map("dibuat_pada")
+
+  pengguna Pengguna @relation(fields: [penggunaId], references: [id], onDelete: Cascade)
+
+  @@index([penggunaId])
+  @@map("reset_kata_sandi")
+}
+
+model LogAudit {
+  id           Int      @id @default(autoincrement())
+  penggunaId   Int?     @map("pengguna_id")
+  aksi         String   @db.VarChar(100)
+  jenisEntitas String   @map("jenis_entitas") @db.VarChar(100)
+  entitasId    Int?     @map("entitas_id")
+  nilaiLama    Json?    @map("nilai_lama")
+  nilaiBaru    Json?    @map("nilai_baru")
+  dibuatPada   DateTime @default(now()) @map("dibuat_pada")
+
+  pengguna Pengguna? @relation(fields: [penggunaId], references: [id], onDelete: SetNull)
+
+  @@index([penggunaId])
+  @@index([jenisEntitas, entitasId])
+  @@map("log_audit")
+}
+
+// ============================================================
+// PENYELENGGARA
+// ============================================================
+
+model Penyelenggara {
+  id             Int                 @id @default(autoincrement())
+  nama           String              @db.VarChar(150)
+  logo           String?             @db.VarChar(255)
+  deskripsi      String?             @db.Text
+  emailKontak    String?             @map("email_kontak") @db.VarChar(191)
+  teleponKontak  String?             @map("telepon_kontak") @db.VarChar(30)
+  status         StatusPenyelenggara @default(AKTIF)
+  dibuatPada     DateTime            @default(now()) @map("dibuat_pada")
+  diperbaruiPada DateTime            @updatedAt @map("diperbarui_pada")
+
+  pengguna      Pengguna?
+  event         Event[]
+  penarikanDana PenarikanDana[]
+
+  @@map("penyelenggara")
+}
+
+model PenarikanDana {
+  id                  Int             @id @default(autoincrement())
+  penyelenggaraId     Int             @map("penyelenggara_id")
+  jumlah              Decimal         @db.Decimal(14, 2)
+  namaBank            String          @map("nama_bank") @db.VarChar(100)
+  nomorRekening       String          @map("nomor_rekening") @db.VarChar(50)
+  namaPemilikRekening String          @map("nama_pemilik_rekening") @db.VarChar(150)
+  status              StatusPenarikan @default(MENUNGGU)
+  diajukanPada        DateTime        @default(now()) @map("diajukan_pada")
+
+  penyelenggara Penyelenggara @relation(fields: [penyelenggaraId], references: [id], onDelete: Restrict)
+
+  @@index([penyelenggaraId])
+  @@map("penarikan_dana")
+}
+
+// ============================================================
+// EVENT
+// ============================================================
+
+model Event {
+  id              Int              @id @default(autoincrement())
+  penyelenggaraId Int              @map("penyelenggara_id")
+  nama            String           @db.VarChar(200)
+  poster          String?          @db.VarChar(255)
+  lokasi          String?          @db.VarChar(200)
+  kota            String?          @db.VarChar(100)
+  deskripsi       String?          @db.Text
+  syaratKetentuan String?          @map("syarat_ketentuan") @db.Text
+  mulaiPada       DateTime         @map("mulai_pada")
+  selesaiPada     DateTime?        @map("selesai_pada")
+  visibilitas     VisibilitasEvent @default(PUBLIK)
+  status          StatusEvent      @default(DRAFT)
+  dibuatPada      DateTime         @default(now()) @map("dibuat_pada")
+  diperbaruiPada  DateTime         @updatedAt @map("diperbarui_pada")
+
+  penyelenggara Penyelenggara   @relation(fields: [penyelenggaraId], references: [id], onDelete: Restrict)
+  kategoriTiket KategoriTiket[]
+  kodePromo     KodePromo[]
+  pesanan       Pesanan[]
+
+  @@index([penyelenggaraId])
+  @@index([status, visibilitas, mulaiPada])
+  @@index([kota])
+  @@map("event")
+}
+
+// ============================================================
+// TIKET, BUNDLING, PROMO
+// ============================================================
+
+model KategoriTiket {
+  id               Int       @id @default(autoincrement())
+  eventId          Int       @map("event_id")
+  nama             String    @db.VarChar(150)
+  harga            Decimal   @db.Decimal(14, 2)
+  kuota            Int
+  jadwalPada       DateTime? @map("jadwal_pada")
+  penjualanMulai   DateTime? @map("penjualan_mulai")
+  penjualanSelesai DateTime? @map("penjualan_selesai")
+
+  event         Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  paketBundling PaketBundling[]
+  itemPesanan   ItemPesanan[]
+
+  @@index([eventId])
+  @@map("kategori_tiket")
+}
+
+model PaketBundling {
+  id              Int     @id @default(autoincrement())
+  kategoriTiketId Int     @map("kategori_tiket_id")
+  nama            String  @db.VarChar(150)
+  jumlah          Int
+  harga           Decimal @db.Decimal(14, 2)
+
+  kategoriTiket KategoriTiket @relation(fields: [kategoriTiketId], references: [id], onDelete: Restrict)
+  itemPesanan   ItemPesanan[]
+
+  @@index([kategoriTiketId])
+  @@map("paket_bundling")
+}
+
+model KodePromo {
+  id            Int           @id @default(autoincrement())
+  eventId       Int           @map("event_id")
+  kode          String        @db.VarChar(50)
+  jenisPotongan JenisPotongan @map("jenis_potongan")
+  nilaiPotongan Decimal       @map("nilai_potongan") @db.Decimal(14, 2)
+  kuota         Int
+  jumlahDipakai Int           @default(0) @map("jumlah_dipakai")
+  berlakuDari   DateTime?     @map("berlaku_dari")
+  berlakuSampai DateTime?     @map("berlaku_sampai")
+  aktif         Boolean       @default(true)
+
+  event   Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  pesanan Pesanan[]
+
+  @@unique([eventId, kode])
+  @@map("kode_promo")
+}
+
+// ============================================================
+// TRANSAKSI
+// ============================================================
+
+model Pesanan {
+  id              Int           @id @default(autoincrement())
+  nomorPesanan    String        @unique @map("nomor_pesanan") @db.VarChar(50)
+  eventId         Int           @map("event_id")
+  penggunaId      Int?          @map("pengguna_id")
+  kodePromoId     Int?          @map("kode_promo_id")
+  dijualOleh      Int?          @map("dijual_oleh")
+  sumber          SumberPesanan @default(ONLINE)
+  namaPembeli     String        @map("nama_pembeli") @db.VarChar(150)
+  emailPembeli    String?       @map("email_pembeli") @db.VarChar(191)
+  teleponPembeli  String?       @map("telepon_pembeli") @db.VarChar(30)
+  subtotal        Decimal       @db.Decimal(14, 2)
+  potongan        Decimal       @default(0) @db.Decimal(14, 2)
+  biayaAdmin      Decimal       @default(0) @map("biaya_admin") @db.Decimal(14, 2)
+  total           Decimal       @db.Decimal(14, 2)
+  status          StatusPesanan @default(MENUNGGU)
+  kedaluwarsaPada DateTime?     @map("kedaluwarsa_pada")
+  dibuatPada      DateTime      @default(now()) @map("dibuat_pada")
+
+  event      Event         @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  pengguna   Pengguna?     @relation("PesananPembeli", fields: [penggunaId], references: [id], onDelete: SetNull)
+  penjual    Pengguna?     @relation("PesananPenjual", fields: [dijualOleh], references: [id], onDelete: SetNull)
+  kodePromo  KodePromo?    @relation(fields: [kodePromoId], references: [id], onDelete: SetNull)
+  item       ItemPesanan[]
+  pembayaran Pembayaran[]
+
+  @@index([eventId])
+  @@index([penggunaId])
+  @@index([kodePromoId])
+  @@index([dijualOleh])
+  @@index([status, dibuatPada])
+  @@map("pesanan")
+}
+
+model ItemPesanan {
+  id              Int     @id @default(autoincrement())
+  pesananId       Int     @map("pesanan_id")
+  kategoriTiketId Int     @map("kategori_tiket_id")
+  paketBundlingId Int?    @map("paket_bundling_id")
+  jumlah          Int
+  hargaSatuan     Decimal @map("harga_satuan") @db.Decimal(14, 2)
+  subtotal        Decimal @db.Decimal(14, 2)
+
+  pesanan       Pesanan        @relation(fields: [pesananId], references: [id], onDelete: Cascade)
+  kategoriTiket KategoriTiket  @relation(fields: [kategoriTiketId], references: [id], onDelete: Restrict)
+  paketBundling PaketBundling? @relation(fields: [paketBundlingId], references: [id], onDelete: SetNull)
+  tiket         Tiket[]
+
+  @@index([pesananId])
+  @@index([kategoriTiketId])
+  @@index([paketBundlingId])
+  @@map("item_pesanan")
+}
+
+model Pembayaran {
+  id               Int              @id @default(autoincrement())
+  pesananId        Int              @map("pesanan_id")
+  metode           MetodePembayaran
+  referensiGateway String?          @map("referensi_gateway") @db.VarChar(191)
+  jumlah           Decimal          @db.Decimal(14, 2)
+  status           StatusPembayaran @default(MENUNGGU)
+  dibayarPada      DateTime?        @map("dibayar_pada")
+
+  pesanan Pesanan @relation(fields: [pesananId], references: [id], onDelete: Cascade)
+
+  @@index([pesananId])
+  @@index([referensiGateway])
+  @@map("pembayaran")
+}
+
+// ============================================================
+// TIKET TERBIT
+// ============================================================
+
+model Tiket {
+  id                  Int         @id @default(autoincrement())
+  itemPesananId       Int         @map("item_pesanan_id")
+  kodeQr              String      @unique @map("kode_qr") @db.VarChar(191)
+  namaPemegang        String?     @map("nama_pemegang") @db.VarChar(150)
+  noIdentitasPemegang String?     @map("no_identitas_pemegang") @db.VarChar(50)
+  status              StatusTiket @default(VALID)
+  dibuatPada          DateTime    @default(now()) @map("dibuat_pada")
+
+  itemPesanan ItemPesanan     @relation(fields: [itemPesananId], references: [id], onDelete: Restrict)
+  validasi    ValidasiTiket[]
+
+  @@index([itemPesananId])
+  @@map("tiket")
+}
+
+model ValidasiTiket {
+  id           Int            @id @default(autoincrement())
+  tiketId      Int            @map("tiket_id")
+  dipindaiOleh Int            @map("dipindai_oleh")
+  metode       MetodeValidasi
+  hasil        HasilValidasi
+  dipindaiPada DateTime       @default(now()) @map("dipindai_pada")
+
+  tiket    Tiket    @relation(fields: [tiketId], references: [id], onDelete: Cascade)
+  pemindai Pengguna @relation(fields: [dipindaiOleh], references: [id], onDelete: Restrict)
+
+  @@index([tiketId])
+  @@index([dipindaiOleh])
+  @@map("validasi_tiket")
+}
+
+// ============================================================
+// KONTEN & SISTEM
+// ============================================================
+
+model Berita {
+  id              Int          @id @default(autoincrement())
+  dibuatOleh      Int          @map("dibuat_oleh")
+  judul           String       @db.VarChar(200)
+  slug            String       @unique @db.VarChar(200)
+  gambar          String?      @db.VarChar(255)
+  isi             String       @db.Text
+  status          StatusBerita @default(DRAFT)
+  diterbitkanPada DateTime?    @map("diterbitkan_pada")
+  dibuatPada      DateTime     @default(now()) @map("dibuat_pada")
+  diperbaruiPada  DateTime     @updatedAt @map("diperbarui_pada")
+
+  penulis Pengguna @relation(fields: [dibuatOleh], references: [id], onDelete: Restrict)
+
+  @@index([dibuatOleh])
+  @@map("berita")
+}
+
+model BiayaPlatform {
+  id         Int        @id @default(autoincrement())
+  nama       String     @db.VarChar(100)
+  jenisBiaya JenisBiaya @map("jenis_biaya")
+  nilaiBiaya Decimal    @map("nilai_biaya") @db.Decimal(14, 2)
+  aktif      Boolean    @default(true)
+
+  @@map("biaya_platform")
+}
+
+model PengaturanSistem {
+  id             Int      @id @default(autoincrement())
+  kunci          String   @unique @db.VarChar(100)
+  nilai          String   @db.Text
+  diperbaruiPada DateTime @updatedAt @map("diperbarui_pada")
+
+  @@map("pengaturan_sistem")
+}
