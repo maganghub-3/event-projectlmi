@@ -43,9 +43,10 @@ export async function POST(request) {
   }
 }
 
+//develop purpose
 export async function GET(request) {
-  const { response } = requireAuth(request);
-  if (response) return response;
+  // const { response } = requireAuth(request);
+  // if (response) return response;
   const res = await prisma.pengguna.findMany();
   return NextResponse.json(res);
 }
