@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Icon from "./Icon";
 import Button from "@/components/ui/button";
-import notify from "@/lib/sweetalert";
 import { BRAND } from "@/constants/brand";
 
 const NAV_LINKS = [
@@ -16,7 +15,7 @@ const NAV_LINKS = [
   { id: "bantuan", label: "Bantuan" },
 ];
 
-export default function Navbar({ onOpenCreateEvent }) {
+export default function Navbar() {
   const pathname = usePathname() || "/";
   const isHome = pathname === "/";
   const [showPromo, setShowPromo]       = useState(true);
@@ -27,11 +26,6 @@ export default function Navbar({ onOpenCreateEvent }) {
 
   // Jika di sub-kategori, aktifkan menu 'kategori', jika di home gunakan scrollActiveId
   const activeId = pathname.startsWith("/sub-kategori") ? "kategori" : scrollActiveId;
-
-  const handleCreateEvent = () => {
-    if (onOpenCreateEvent) onOpenCreateEvent();
-    else notify.info("Formulir pendaftaran event akan segera dibuka!");
-  };
 
   // Lacak section aktif berdasarkan posisi scroll (hanya jika di home page)
   useEffect(() => {
@@ -183,12 +177,11 @@ export default function Navbar({ onOpenCreateEvent }) {
               Masuk
             </Button>
             <Button
-              href={isHome ? "#organizer" : "/#organizer"}
-              onClick={handleCreateEvent}
+              href="/hubungi-kami"
               variant="primary"
               rightIcon={<Icon name="arrowRight" className="h-4 w-4" />}
             >
-              + Buat Event
+              Hubungi Kami
             </Button>
           </div>
 
@@ -233,14 +226,14 @@ export default function Navbar({ onOpenCreateEvent }) {
                 Masuk ke Akun
               </Button>
               <Button
-                href={isHome ? "#organizer" : "/#organizer"}
-                onClick={() => { setMobileMenuOpen(false); handleCreateEvent(); }}
+                href="/hubungi-kami"
+                onClick={() => setMobileMenuOpen(false)}
                 variant="primary"
                 rounded="xl"
                 fullWidth
                 rightIcon={<Icon name="arrowRight" className="h-4 w-4" />}
               >
-                + Buat Event Sendiri
+                Hubungi Kami
               </Button>
             </div>
           </div>

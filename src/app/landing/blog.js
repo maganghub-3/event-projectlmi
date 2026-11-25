@@ -148,57 +148,7 @@ export default function BlogSection() {
       </section>
 
       {/* 2. FRIENDLY ORGANIZER CTA BANNER */}
-      <section id="organizer" className="py-12 bg-[#F7F8FC]">
-        <div data-reveal="bottom" className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="relative rounded-[36px] bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700 text-white p-8 sm:p-12 md:p-14 overflow-hidden shadow-2xl shadow-brand-600/20">
-            {/* Background sparkle accents */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
-              <div className="lg:col-span-8 space-y-4">
-                <span className="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-white">
-                  Untuk Komunitas &amp; Penyelenggara
-                </span>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-                  Punya ide event seru? Yuk buat bareng {BRAND.name}!
-                </h2>
-                <p className="text-white/90 text-sm sm:text-base max-w-xl leading-relaxed">
-                  Dari gathering komunitas kecil 20 orang hingga festival musik ribuan penonton. Bikin halaman tiketmu gratis hanya dalam 3 menit, tanpa ribet koding!
-                </p>
-                
-                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-bold text-white/90">
-                  <span className="flex items-center gap-1.5">✓ Tanpa Biaya Pendaftaran</span>
-                  <span className="flex items-center gap-1.5">✓ Dashboard Analitik Realtime</span>
-                  <span className="flex items-center gap-1.5">✓ Pencairan Dana Otomatis</span>
-                </div>
-              </div>
-
-              <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
-                <Button
-                  href="/authentication/login?redirect=/organizer"
-                  variant="white"
-                  size="lg"
-                  rounded="full"
-                  className="w-full text-center"
-                >
-                  Daftar Jadi EO Gratis
-                </Button>
-                <Button
-                  onClick={() => notify.toast("Tim kemitraan kami akan segera menghubungi Anda!")}
-                  variant="outline"
-                  size="lg"
-                  rounded="full"
-                  className="w-full text-center bg-white/10 hover:bg-white/20 text-white border-white/40"
-                >
-                  Konsultasi Kemitraan
-                </Button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
+      
     </>
   );
 }

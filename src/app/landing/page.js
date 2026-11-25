@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Navbar from "./Navbar";
 import HeroBanner from "./banner";
 import KategoriSection from "./kategori";
@@ -48,9 +49,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#F7F8FC] text-slate-800 flex flex-col font-sans selection:bg-brand-200 selection:text-brand-900">
 
       {/* 1. NAVBAR & HEADER (File: Navbar.js) */}
-      <Navbar 
-        onOpenCreateEvent={() => notify.toast("Formulir pendaftaran event akan segera dibuka!")}
-      />
+      <Navbar />
 
       {/* 2. HERO SECTION DENGAN 3D STACKED BANNER (SEPERTI ARTATIX) */}
       <section id="beranda" className="relative overflow-hidden pt-6 pb-12 md:pt-10 md:pb-16 scroll-mt-20">
@@ -190,7 +189,7 @@ export default function LandingPage() {
         onSelectCategory={handleSelectCategory}
       />
 
-      {/* 5. KEUNGGULAN SECTION (KENAPA PILIH LMI EVENT?) */}
+      {/* 5. KEUNGGULAN SECTION (KENAPA PILIH LMI EVENT?)
       <section id="keunggulan" className="py-16 bg-white border-y border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -263,7 +262,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* 6. BLOG & KILAS EVENT KERJASAMA (File: blog.js) */}
       <BlogSection />
@@ -277,13 +276,14 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800 text-sm">
             
             <div className="lg:col-span-2 space-y-4">
-              <a href="#beranda" className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white text-lg">
-                  <Icon name="ticket" className="h-5 w-5" />
-                </div>
-                <span className="font-extrabold text-2xl text-white tracking-tight">
-                  {BRAND.name}<span className="text-brand-600">.</span>
-                </span>
+              <a href="#beranda" className="inline-flex items-center" aria-label="LMI Event - Beranda">
+                <Image
+                  src="/images/lmi-logo.png"
+                  alt="LMI Event - Lembaga Manajemen Infaq"
+                  width={144}
+                  height={70}
+                  className="h-auto w-32"
+                />
               </a>
               <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
                 Platform tiket event paling ramah di Indonesia. Kami menghubungkan pencinta musik, seni, kuliner, dan komunitas dengan pengalaman tak terlupakan.
@@ -325,6 +325,7 @@ export default function LandingPage() {
                 <li><span className="text-slate-300 font-medium">Email:</span> {BRAND.email}</li>
                 <li><span className="text-slate-300 font-medium">Jam Layanan:</span> 08.00 - 23.00 WIB</li>
                 <li><a href="#bantuan" className="hover:text-white underline">Pusat Bantuan &amp; FAQ</a></li>
+                <li><a href="/hubungi-kami" className="hover:text-white underline">Hubungi Kami</a></li>
               </ul>
             </div>
 

@@ -225,6 +225,24 @@ export default function Icon({ name, className = "w-5 h-5", ...props }) {
         <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354l-4.627 2.826c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clipRule="evenodd" />
       </svg>
     ),
+    instagram: (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    tiktok: (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}>
+        <path d="M16.5 3c.35 2.18 1.73 3.6 3.9 3.8v2.75a8.7 8.7 0 01-4.1-1.35v6.6a6.15 6.15 0 11-6.15-6.15c.33 0 .66.02.98.07v3.05a3.1 3.1 0 102.19 3V3h3.18z" />
+      </svg>
+    ),
+    youtube: (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+        <rect x="2.5" y="5" width="19" height="14" rx="4" />
+        <path d="M10.5 9l5 3-5 3V9z" fill="currentColor" stroke="none" />
+      </svg>
+    ),
   };
 
   return icons[name] || null;

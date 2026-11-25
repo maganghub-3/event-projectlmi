@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import Icon from "./Icon";
 import notify from "@/lib/sweetalert";
 import { INITIAL_EVENTS } from "./data";
@@ -16,7 +17,6 @@ export default function EventSection({
 }) {
   const [favorites, setFavorites] = useState({});
   const [selectedBookingEvent, setSelectedBookingEvent] = useState(null);
-  const [ticketQty, setTicketQty] = useState(1);
 
   // Toggle favorite
   const toggleFavorite = (eventId, eventTitle) => {
@@ -134,11 +134,17 @@ export default function EventSection({
                 >
                   {/* Event Image & Badges */}
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                    <img
-                      src={event.image}
-                      alt={event.alt}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    <Link
+                      href={`/event/${event.slug}`}
+                      aria-label={`Lihat detail ${event.title}`}
+                      className="block h-full w-full"
+                    >
+                      <img
+                        src={event.image}
+                        alt={event.alt}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </Link>
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
                     
                     {/* Category Tag */}
@@ -182,8 +188,10 @@ export default function EventSection({
                           <span className="text-[11px] font-bold text-brand-700">
                             {event.badge}
                           </span>
-                          <h3 className="text-base font-extrabold text-slate-900 leading-snug hover:text-brand-700 transition-colors">
-                            {event.title}
+                          <h3 className="text-base font-extrabold text-slate-900 leading-snug transition-colors">
+                            <Link href={`/event/${event.slug}`} className="hover:text-brand-700">
+                              {event.title}
+                            </Link>
                           </h3>
                         </div>
                       </div>
@@ -214,7 +222,6 @@ export default function EventSection({
                         type="button"
                         onClick={() => {
                           setSelectedBookingEvent(event);
-                          setTicketQty(1);
                         }}
                         className="px-4 py-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs font-bold rounded-full shadow-md shadow-brand-600/20 hover:shadow-brand-600/30 flex items-center gap-1.5 transition-all"
                       >
@@ -261,61 +268,33 @@ export default function EventSection({
               <p><strong>Harga Satuan:</strong> Rp {selectedBookingEvent.priceLabel}</p>
             </div>
 
-            {/* Qty Selector */}
-            <div className="mt-4 flex items-center justify-between p-3 rounded-2xl bg-brand-50/70 border border-brand-200">
-              <div>
-                <span className="block text-xs font-bold text-slate-800">Jumlah Tiket</span>
-                <span className="text-[11px] text-slate-500">Maksimal 5 tiket per pesanan</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTicketQty((q) => Math.max(1, q - 1))}
-                  className="w-8 h-8 rounded-full bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center"
-                >
-                  -
-                </button>
-                <span className="font-extrabold text-slate-900 text-base w-4 text-center">
-                  {ticketQty}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setTicketQty((q) => Math.min(5, q + 1))}
-                  className="w-8 h-8 rounded-full bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Total Calculation */}
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-400">Total Pembayaran</span>
-                <p className="text-xl font-black text-brand-700">
-                  Rp {(selectedBookingEvent.price * ticketQty).toLocaleString("id-ID")}
-                </p>
-              </div>
-              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
-                Bebas Biaya Admin
-              </span>
+            {/* Info kategori tiket */}
+            <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50/70 p-3.5">
+              <p className="text-xs font-bold text-slate-800">Pilih kategori tiket dulu</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                Early Bird, Reguler, atau Bundling — masing-masing punya harga &amp; kuota berbeda.
+              </p>
             </div>
 
             {/* Confirmation CTA */}
-            <div className="mt-5 space-y-2">
-              <button
-                type="button"
-                onClick={() => {
-                  notify.toast(`Selamat! ${ticketQty} Tiket "${selectedBookingEvent.title}" berhasil dipesan. E-ticket dikirimkan!`);
-                  setSelectedBookingEvent(null);
-                }}
-                className="w-full py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/25 transition-all text-sm"
+            <div className="mt-4 space-y-2">
+              <Link
+                href={`/event/${selectedBookingEvent.slug}/tiket`}
+                onClick={() => setSelectedBookingEvent(null)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-600/25 transition-all hover:from-brand-700 hover:to-brand-600 active:scale-95"
               >
-                Lanjut ke Pembayaran Aman
-              </button>
+                Pilih Kategori Tiket
+                <Icon name="arrowRight" className="h-4 w-4" />
+              </Link>
               <p className="text-[10px] text-slate-400 text-center">
                 Pembayaran terlindungi enkripsi 256-bit dan garansi tiket resmi.
               </p>
+              <Link
+                href={`/event/${selectedBookingEvent.slug}`}
+                className="block text-center text-xs font-bold text-brand-700 hover:underline"
+              >
+                Lihat detail lengkap event
+              </Link>
             </div>
 
           </div>
