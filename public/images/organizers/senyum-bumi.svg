@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Studio Senyum Bumi">
+  <rect width="64" height="64" rx="16" fill="#10b981" />
+  <path d="M32 14c9 7 11 15 6 22H26c-5-7-3-15 6-22z" fill="#ffffff" />
+  <path d="M22 38h20l-3 12H25z" fill="#ffffff" />
+</svg>

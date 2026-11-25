@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SoundWave Project">
+  <rect width="64" height="64" rx="16" fill="#3b4197" />
+  <g fill="#ffffff">
+    <rect x="11" y="28" width="4" height="8" rx="2" />
+    <rect x="18" y="22" width="4" height="20" rx="2" />
+    <rect x="25" y="16" width="4" height="32" rx="2" />
+    <rect x="32" y="22" width="4" height="20" rx="2" />
+    <rect x="39" y="28" width="4" height="8" rx="2" />
+    <rect x="46" y="24" width="4" height="16" rx="2" />
+    <rect x="53" y="29" width="4" height="6" rx="2" />
+  </g>
+</svg>
