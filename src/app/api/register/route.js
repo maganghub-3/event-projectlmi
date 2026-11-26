@@ -47,6 +47,8 @@ export async function POST(request) {
 export async function GET(request) {
   // const { response } = requireAuth(request);
   // if (response) return response;
-  const res = await prisma.pengguna.findMany();
+  const res = await prisma.pengguna.findMany({
+    omit: { kataSandiHash: true },
+  });
   return NextResponse.json(res);
 }

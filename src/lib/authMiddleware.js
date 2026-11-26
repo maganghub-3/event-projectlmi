@@ -3,7 +3,10 @@ import { verifyToken } from "./auth";
 
 export function getAuthUser(request) {
   const header = request.headers.get("authorization") || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  let token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token && request.cookies) {
+    token = request.cookies.get("token")?.value ?? null;
+  }
   return verifyToken(token);
 }
 

@@ -114,6 +114,8 @@ export async function GET(request) {
   try {
     const data = await prisma.pengguna.findMany({
       where: { peran: "ADMIN_EVENT" },
+      omit: { kataSandiHash: true },
+      include: { penyelenggara: true },
     });
     return NextResponse.json(
       data.length == 0 ? { message: "Data ADMIN_EVENT Kosong" } : data,
