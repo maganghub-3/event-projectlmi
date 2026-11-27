@@ -5,5 +5,5 @@ export const metadata = {
 };
 
 export default function AdminBeritaPage() {
-  return <NewsManager role="super_admin" />;
+  return <NewsManager role="super_admin" basePath="/dashboard-admin/berita" />;
 }

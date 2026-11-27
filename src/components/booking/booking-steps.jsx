@@ -1,10 +1,17 @@
 import Icon from "@/app/landing/Icon";
 
-const STEPS = ["Detail Event", "Kategori Tiket", "Pembayaran", "E-Ticket"];
+const STEPS = [
+  "Detail Event",
+  "Kategori Tiket",
+  "Detail Pemesan",
+  "Pembayaran",
+  "E-Ticket",
+];
 
 /**
  * Indikator tahap pemesanan.
- * current: 0 = detail event, 1 = kategori tiket, 2 = pembayaran, 3 = e-ticket.
+ * current: 0 = detail event, 1 = kategori tiket, 2 = detail pemesan,
+ * 3 = pembayaran, 4 = e-ticket.
  */
 export default function BookingSteps({ current }) {
   return (

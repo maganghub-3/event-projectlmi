@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,28 @@ export default function BlogSection() {
     selectedCategory === "all"
       ? COLLABORATION_STORIES
       : COLLABORATION_STORIES.filter((s) => s.category === selectedCategory);
+
+  // Kartu hasil filter dibuat ulang, jadi perlu di-observe lagi agar
+  // tidak tetap opacity: 0 dari [data-reveal].
+  useEffect(() => {
+    const elements = document.querySelectorAll("#blog article[data-reveal]");
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -30px 0px" }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [selectedCategory]);
 
   return (
     <>

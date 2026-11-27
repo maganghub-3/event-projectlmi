@@ -44,11 +44,20 @@ export function escapeHtml(value = "") {
     .replace(/'/g, "&#39;");
 }
 
-// Tujuan setelah login, ditentukan dari peran & status yang dikirim backend.
+// Tujuan setelah login, ditentukan dari peran & status penyelenggara.
+// Catatan: halaman /organizer/status belum tersedia, jadi EO yang masih
+// menunggu verifikasi diarahkan ke ringkasan organizer.
 export function getHomePath(user) {
-  if (user.roles.includes("super_admin")) return "/dashboard-admin";
-  if (user.roles.includes("crew")) return "/scan";
-  if (user.organizer?.status === "approved") return "/organizer";
-  if (user.organizer?.status === "pending") return "/organizer/status";
+  const roles = Array.isArray(user?.roles) ? user.roles : [];
+  const organizerStatus = user?.organizer?.status;
+
+  if (roles.includes("super_admin")) return "/dashboard-admin";
+  if (roles.includes("crew")) return "/scan";
+  if (roles.includes("organizer") && organizerStatus === "approved") {
+    return "/dashboard-eo";
+  }
+  if (roles.includes("organizer") && organizerStatus === "pending") {
+    return "/organizer";
+  }
   return "/"; // pembeli biasa
 }

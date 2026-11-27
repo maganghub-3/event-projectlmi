@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Icon from "@/app/landing/Icon";
 import notify from "@/lib/sweetalert";
+import { clearSession } from "@/lib/session";
 
 export const ADMIN_NAV_ITEMS = [
   {
@@ -29,17 +30,21 @@ export const ADMIN_NAV_ITEMS = [
 
 export const EO_NAV_ITEMS = [
   {
-    title: "Menu Penyelenggara",
+    title: "Menu Utama",
     items: [
-      { id: "overview", label: "Ringkasan", href: "/organizer", icon: "dashboard" },
-      { id: "events", label: "Event Saya", href: "/organizer#events", icon: "ticket" },
-      { id: "berita", label: "Kelola Berita", href: "/organizer/berita", icon: "news" },
+      { id: "overview", label: "Dashboard", href: "/dashboard-eo", icon: "dashboard" },
+      { id: "events", label: "Acara Saya", href: "/dashboard-eo/events", icon: "ticket" },
+      { id: "transaksi", label: "Pesanan", href: "/dashboard-eo/transaksi", icon: "creditCard" },
+      { id: "payout", label: "Keuangan", href: "/dashboard-eo/pencairan", icon: "wallet" },
+      { id: "laporan", label: "Laporan", href: "/dashboard-eo/laporan", icon: "chartBar" },
+      { id: "berita", label: "Cerita Event", href: "/dashboard-eo/berita", icon: "news" },
     ],
   },
   {
-    title: "Bantuan",
+    title: "Organisasi",
     items: [
-      { id: "panduan", label: "Panduan EO", href: "/organizer#panduan", icon: "shield" },
+      { id: "profil", label: "Profil Organisasi", href: "/dashboard-eo/profil", icon: "building" },
+      { id: "bantuan", label: "Bantuan", href: "/dashboard-eo/bantuan", icon: "shield" },
     ],
   },
 ];
@@ -50,6 +55,7 @@ export default function Sidebar({
   activeItem = "overview",
   setActiveItem = () => {},
   navItems = ADMIN_NAV_ITEMS,
+  homeHref = "/dashboard-admin",
   user = {
     name: "Super Administrator",
     email: "admin@lmi.id",
@@ -62,13 +68,14 @@ export default function Sidebar({
   const handleLogout = async () => {
     const confirmed = await notify.confirm({
       title: "Keluar dari Dashboard?",
-      text: "Anda akan keluar dari sesi Super Admin dan diarahkan ke halaman login.",
+      text: "Anda akan keluar dari sesi ini dan diarahkan ke halaman login.",
       confirmText: "Ya, Keluar",
       cancelText: "Batal",
       danger: true,
     });
 
     if (confirmed) {
+      clearSession();
       notify.toast("Berhasil keluar dari akun.");
       router.push("/authentication/login");
     }
@@ -94,7 +101,7 @@ export default function Sidebar({
         {/* Sidebar Header / Logo */}
         <div>
           <div className="h-20 px-6 flex items-center justify-between border-b border-slate-800/80">
-            <Link href="/dashboard-admin" className="flex items-center gap-2.5 group" aria-label="LMI Event - Beranda">
+            <Link href={homeHref} className="flex items-center gap-2.5 group" aria-label="LMI Event - Beranda">
               <Image
                 src="/images/lmi-logo.png"
                 alt="LMI Event - Lembaga Manajemen Infaq"
@@ -186,6 +193,11 @@ export default function Sidebar({
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                {user.caption && (
+                  <p className="text-[10px] font-semibold text-brand-200 truncate">
+                    {user.caption}
+                  </p>
+                )}
                 <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
               </div>
             </div>

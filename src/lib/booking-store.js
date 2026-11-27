@@ -6,6 +6,18 @@
 
 const STORAGE_KEY = "lmi-event-orders-v1";
 
+export const EMPTY_ATTENDEE = {
+  name: "",
+  phone: "",
+  email: "",
+  identityType: "ktp",
+  identityNumber: "",
+};
+
+export function makeAttendees(count) {
+  return Array.from({ length: count }, () => ({ ...EMPTY_ATTENDEE }));
+}
+
 export function readOrders() {
   if (typeof window === "undefined") return [];
   try {
@@ -25,7 +37,10 @@ export function writeOrders(orders) {
 export function soldTickets(slug) {
   return readOrders()
     .filter((order) => order.status === "paid" && order.eventSlug === slug)
-    .reduce((total, order) => total + order.qty, 0);
+    .reduce(
+      (total, order) => total + order.qty * (order.ticketCount || 1),
+      0
+    );
 }
 
 export function availableTickets(event) {
@@ -47,6 +62,7 @@ export function createDraft(event, qty, ticketType) {
     total: unitPrice * qty,
     status: "pending_payment",
     buyer: null,
+    attendees: makeAttendees(qty * ticketCount),
     paymentMethod: null,
     tickets: [],
     createdAt: new Date().toISOString(),
@@ -64,7 +80,18 @@ export function getOrder(id) {
   return readOrders().find((order) => order.id === id) || null;
 }
 
-export function completeOrder(id, buyer, paymentMethod) {
+export function saveAttendees(id, attendees) {
+  let updated = null;
+  const orders = readOrders().map((order) => {
+    if (order.id !== id) return order;
+    updated = { ...order, attendees, buyer: attendees[0] || null };
+    return updated;
+  });
+  writeOrders(orders);
+  return updated;
+}
+
+export function completeOrder(id, buyer, paymentMethod, attendees) {
   let completed = null;
   const orders = readOrders().map((order) => {
     if (order.id !== id) return order;
@@ -72,6 +99,7 @@ export function completeOrder(id, buyer, paymentMethod) {
       ...order,
       status: "paid",
       buyer,
+      attendees: attendees && attendees.length ? attendees : [buyer],
       paymentMethod,
       paidAt: new Date().toISOString(),
       tickets: Array.from(

@@ -43,7 +43,7 @@ export default function TicketTypesView({ event }) {
       return;
     }
     createDraft(event, qty, selectedType);
-    router.push("/checkout");
+    router.push("/checkout/pemesan");
   };
 
   return (
@@ -237,7 +237,7 @@ export default function TicketTypesView({ event }) {
                 maxQty === 0 ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
-              {maxQty === 0 ? "Tiket Habis" : "Lanjut ke Pembayaran"}
+              {maxQty === 0 ? "Tiket Habis" : "Lanjut Isi Detail Pemesan"}
             </button>
 
             <Link

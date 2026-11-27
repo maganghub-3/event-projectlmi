@@ -19,6 +19,11 @@ function formatRupiah(value) {
   return `Rp ${value.toLocaleString("id-ID")}`;
 }
 
+function identityLabel(id) {
+  const labels = { ktp: "KTP", sim: "SIM", paspor: "Paspor", "kartu-pelajar": "Kartu Pelajar" };
+  return labels[id] || "-";
+}
+
 export default function PesananView() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,6 +156,30 @@ export default function PesananView() {
                       )}
                     </div>
                   </div>
+
+                  {isPaid && order.buyer && (
+                    <div className="mt-4 space-y-3">
+                      {(order.attendees || [order.buyer]).map((person, index) => (
+                        <div
+                          key={index}
+                          className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4"
+                        >
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            {index === 0 ? "Pemesan" : `Peserta ${index}`} • Tiket {index + 1}
+                          </p>
+                          <div className="mt-2 grid gap-x-6 gap-y-1 text-xs text-slate-600 sm:grid-cols-2">
+                            <p><span className="font-bold text-slate-500">Nama:</span> {person.name}</p>
+                            <p><span className="font-bold text-slate-500">WhatsApp:</span> {person.phone}</p>
+                            <p><span className="font-bold text-slate-500">Email:</span> {person.email}</p>
+                            <p>
+                              <span className="font-bold text-slate-500">Identitas:</span>{" "}
+                              {identityLabel(person.identityType)} • {person.identityNumber || "-"}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {isPaid && (
                     <div className="mt-4 rounded-2xl border border-dashed border-brand-200 bg-brand-50/50 p-4">

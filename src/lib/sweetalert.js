@@ -8,7 +8,7 @@
  *
  *   import notify from "@/lib/sweetalert";
  *
- *   notify.toast("Pesan biasa");
+ *   notify.toast("Pesan biasa"); // popup besar, auto-tutup 3 detik, ada tombol Oke & X
  *   notify.success("Berhasil disimpan");
  *   notify.error("Gagal memproses");
  *   notify.warning("Stok tiket hampir habis");
@@ -28,7 +28,6 @@ const CANCEL = "#94a3b8";
 const DANGER = "#e11d48";
 
 let swalPromise = null;
-let toastMixin = null;
 
 function getSwal() {
   if (!swalPromise) {
@@ -37,36 +36,43 @@ function getSwal() {
   return swalPromise;
 }
 
-function getToast(Swal) {
-  if (!toastMixin) {
-    toastMixin = Swal.mixin({
-      toast: true,
-      position: "bottom-end",
-      showConfirmButton: false,
-      timer: 3200,
-      timerProgressBar: true,
-      customClass: { popup: "lmi-toast" },
-      didOpen: (el) => {
-        el.addEventListener("mouseenter", Swal.stopTimer);
-        el.addEventListener("mouseleave", Swal.resumeTimer);
-      },
-    });
-  }
-  return toastMixin;
-}
-
 /* -------------------------------------------------------------------------- */
 /* Notifikasi (toast, non-blocking)                                            */
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Notifikasi berupa popup besar (bukan toast kecil).
+ * Tutup otomatis setelah 3 detik, tapi bisa juga diklik "Oke" atau tombol X.
+ *
  * @param {string} message
- * @param {{ icon?: "success"|"error"|"warning"|"info"|"question", timer?: number, position?: string }} [options]
+ * @param {{ icon?: "success"|"error"|"warning"|"info"|"question", timer?: number }} [options]
  */
 export async function toast(message, options = {}) {
-  const { icon, timer = 3200, position = "bottom-end" } = options;
+  const { icon, timer = 3000 } = options;
   const Swal = await getSwal();
-  return getToast(Swal).fire({ title: message, icon, timer, position });
+
+  return Swal.fire({
+    icon,
+    title: message,
+    width: "min(560px, 94vw)",
+    padding: "2rem 2.25rem 1.75rem",
+    timer,
+    timerProgressBar: true,
+    showCloseButton: true,
+    closeButtonAriaLabel: "Tutup notifikasi",
+    showConfirmButton: true,
+    confirmButtonText: "Oke",
+    confirmButtonColor: BRAND,
+    customClass: {
+      popup: "lmi-toast-big",
+      title: "lmi-toast-big-title",
+      confirmButton: "lmi-toast-big-btn",
+    },
+    didOpen: (element) => {
+      element.addEventListener("mouseenter", Swal.stopTimer);
+      element.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
 }
 
 export function success(message, options = {}) {

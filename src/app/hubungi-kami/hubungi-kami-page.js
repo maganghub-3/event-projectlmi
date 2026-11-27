@@ -1,25 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import Navbar from "@/app/landing/Navbar";
 import Icon from "@/app/landing/Icon";
 import SiteFooter from "@/components/layout/site-footer";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import notify from "@/lib/sweetalert";
+import { CONTACT_TOPICS, contactSchema } from "@/lib/schemas/contact";
 import { BRAND } from "@/constants/brand";
 import { CONTACT } from "@/constants/contact";
 
 const WHATSAPP_DISPLAY = CONTACT.whatsappDisplay;
 const WHATSAPP_LINK = CONTACT.whatsappLink;
 
-const TOPICS = [
-  "Pertanyaan seputar tiket",
-  "Kendala pembayaran",
-  "Pengembalian dana",
-  "Kerja sama & sponsor",
-  "Menjadi Event Organizer",
-  "Lainnya",
-];
+const TOPICS = CONTACT_TOPICS;
 
 const CONTACT_CHANNELS = [
   {
@@ -57,19 +69,16 @@ const emptyForm = {
 };
 
 export default function HubungiKamiPage() {
-  const [form, setForm] = useState(emptyForm);
+  const form = useForm({
+    resolver: zodResolver(contactSchema),
+    defaultValues: emptyForm,
+  });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const onSubmit = (values) => {
     notify.success(
-      `Terima kasih, ${form.name.split(" ")[0]}! Pesanmu sudah kami terima dan akan dibalas maksimal 1x24 jam.`
+      `Terima kasih, ${values.name.split(" ")[0]}! Pesanmu sudah kami terima dan akan dibalas maksimal 1x24 jam.`
     );
-    setForm(emptyForm);
+    form.reset(emptyForm);
   };
 
   return (
@@ -133,105 +142,135 @@ export default function HubungiKamiPage() {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label htmlFor="name" className="block text-xs font-bold text-slate-700">
-                    Nama Lengkap
-                  </label>
-                  <input
-                    id="name"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
                     name="name"
-                    type="text"
-                    required
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Nama kamu"
-                    className={INPUT_CLASS}
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="block text-xs font-bold text-slate-700">
+                          Nama Lengkap
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Nama kamu"
+                            className={INPUT_CLASS}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="email" className="block text-xs font-bold text-slate-700">
-                    Email
-                  </label>
-                  <input
-                    id="email"
+                  <FormField
+                    control={form.control}
                     name="email"
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="nama@email.com"
-                    className={INPUT_CLASS}
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="block text-xs font-bold text-slate-700">
+                          Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="nama@email.com"
+                            className={INPUT_CLASS}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="phone" className="block text-xs font-bold text-slate-700">
-                    Nomor WhatsApp
-                  </label>
-                  <input
-                    id="phone"
+                  <FormField
+                    control={form.control}
                     name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    required
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="08xx-xxxx-xxxx"
-                    className={INPUT_CLASS}
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="block text-xs font-bold text-slate-700">
+                          Nomor WhatsApp
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            inputMode="tel"
+                            placeholder="08xx-xxxx-xxxx"
+                            className={INPUT_CLASS}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="topic" className="block text-xs font-bold text-slate-700">
-                    Topik
-                  </label>
-                  <select
-                    id="topic"
+                  <FormField
+                    control={form.control}
                     name="topic"
-                    value={form.topic}
-                    onChange={handleChange}
-                    className={INPUT_CLASS}
-                  >
-                    {TOPICS.map((topic) => (
-                      <option key={topic} value={topic}>
-                        {topic}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="message" className="block text-xs font-bold text-slate-700">
-                    Pesan
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    required
-                    rows={5}
-                    value={form.message}
-                    onChange={handleChange}
-                    placeholder="Ceritakan pertanyaan atau kendalamu secara singkat..."
-                    className={`${INPUT_CLASS} resize-none`}
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="block text-xs font-bold text-slate-700">
+                          Topik
+                        </FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-slate-50/60 px-4 text-sm text-slate-800 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100">
+                              <SelectValue placeholder="Pilih topik pesan" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {TOPICS.map((topic) => (
+                              <SelectItem key={topic} value={topic}>
+                                {topic}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div className="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-[11px] text-slate-400 leading-relaxed max-w-xs">
-                    Dengan mengirim pesan, kamu setuju data yang diisi hanya
-                    digunakan untuk keperluan balasan tim {BRAND.name}.
-                  </p>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 active:scale-95"
-                  >
-                    Kirim Pesan
-                    <Icon name="arrowRight" className="h-4 w-4" />
-                  </button>
-                </div>
-              </form>
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5 sm:col-span-2">
+                        <FormLabel className="block text-xs font-bold text-slate-700">
+                          Pesan
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={5}
+                            placeholder="Ceritakan pertanyaan atau kendalamu secara singkat..."
+                            className={`${INPUT_CLASS} resize-none`}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-[11px] text-slate-400 leading-relaxed max-w-xs">
+                      Dengan mengirim pesan, kamu setuju data yang diisi hanya
+                      digunakan untuk keperluan balasan tim {BRAND.name}.
+                    </p>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 active:scale-95"
+                    >
+                      Kirim Pesan
+                      <Icon name="arrowRight" className="h-4 w-4" />
+                    </button>
+                  </div>
+                </form>
+              </Form>
             </div>
           </div>
 

@@ -3,10 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Icon from "@/app/landing/Icon";
 import Button from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import notify from "@/lib/sweetalert";
-import { getHomePath, isEmail, safeRedirect } from "@/lib/auth-utils";
+import { getHomePath, safeRedirect } from "@/lib/auth-utils";
+import { saveSession } from "@/lib/session";
+import { loginSchema } from "@/lib/schemas/auth";
 import { BRAND } from "@/constants/brand";
 
 // Taruh foto di public/images/foto-perusahaan.jpg (disarankan potret, sekitar 1200×1600 px).
@@ -18,19 +31,35 @@ const DUMMY_ACCOUNTS = [
     email: "admin@lmi.id",
     password: "admin",
     name: "Super Admin",
-    user: { roles: ["super_admin"], organizer: null },
+    user: { id: "admin-1", roles: ["super_admin"], organizer: null },
   },
   {
     email: "eo@lmi.id",
-    password: "eo",
-    name: "Event Organizer",
-    user: { roles: ["organizer"], organizer: { status: "approved" } },
+    password: "eo123",
+    name: "Kolektif Nada Nusantara",
+    user: {
+      id: "eo-1",
+      penyelenggaraId: "pen-1",
+      roles: ["organizer"],
+      organizer: { status: "approved" },
+    },
+  },
+  {
+    email: "java@lmi.id",
+    password: "java123",
+    name: "Java Sound Collective",
+    user: {
+      id: "eo-2",
+      penyelenggaraId: "pen-2",
+      roles: ["organizer"],
+      organizer: { status: "approved" },
+    },
   },
   {
     email: "user@lmi.id",
     password: "user",
     name: "Pembeli / User",
-    user: { roles: ["buyer"], organizer: null },
+    user: { id: "buyer-1", roles: ["buyer"], organizer: null },
   },
 ];
 
@@ -44,13 +73,26 @@ async function loginWithPassword(email, password) {
   );
 
   if (found) {
-    return { user: found.user };
+    return {
+      user: {
+        name: found.name,
+        email: found.email,
+        ...found.user,
+      },
+    };
   }
 
   // Jika bukan akun dummy khusus di atas, izinkan login sebagai user/buyer biasa
   // asalkan password minimal 4 karakter (untuk fleksibilitas testing)
   if (password && password.length >= 4) {
-    return { user: { roles: ["buyer"], organizer: null } };
+    return {
+      user: {
+        name: email.split("@")[0],
+        email,
+        roles: ["buyer"],
+        organizer: null,
+      },
+    };
   }
 
   throw new Error("Email atau kata sandi tidak cocok.");
@@ -75,43 +117,30 @@ function CompanyPhoto({ className = "" }) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const cleanEmail = email.trim().toLowerCase();
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
 
-    if (!cleanEmail) {
-      setError("Masukkan alamat email.");
-      return;
-    }
-
-    if (!isEmail(cleanEmail)) {
-      setError("Masukkan alamat email yang valid.");
-      return;
-    }
-
-    if (!password) {
-      setError("Masukkan kata sandi Anda.");
-      return;
-    }
-
-    setError("");
-    setIsLoading(true);
+  const onSubmit = async (values) => {
+    setAuthError("");
+    const cleanEmail = values.email.trim().toLowerCase();
 
     try {
-      const { user } = await loginWithPassword(cleanEmail, password);
+      const { user } = await loginWithPassword(cleanEmail, values.password);
+      saveSession(user, { remember: values.rememberMe });
       notify.toast("Login berhasil!");
       const redirect = new URLSearchParams(window.location.search).get("redirect");
       router.push(safeRedirect(redirect, getHomePath(user)));
     } catch {
-      setError("Email atau kata sandi tidak cocok. Silakan periksa kembali.");
-      setIsLoading(false);
+      setAuthError("Email atau kata sandi tidak cocok. Silakan periksa kembali.");
     }
   };
 
@@ -160,101 +189,123 @@ export default function LoginPage() {
             Masukkan email dan kata sandi Anda untuk mengakses akun.
           </p>
 
-          <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
-            {/* Input Email */}
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="nama@email.com"
-                aria-invalid={!!error}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mt-8 space-y-4">
+              {/* Input Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-slate-700">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        autoFocus
+                        placeholder="nama@email.com"
+                        className="h-auto rounded-xl border-slate-200 px-4 py-3 text-sm shadow-none focus-visible:border-brand-500 focus-visible:ring-4 focus-visible:ring-brand-100"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          if (authError) setAuthError("");
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            {/* Input Password */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-                  Kata Sandi
-                </label>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition"
-                >
-                  Lupa sandi?
-                </button>
-              </div>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (error) setError("");
-                  }}
-                  placeholder="••••••••"
-                  aria-invalid={!!error}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-11 text-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
-                >
-                  <Icon name={showPassword ? "eyeOff" : "eye"} className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
+              {/* Input Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-sm font-medium text-slate-700">
+                        Kata Sandi
+                      </FormLabel>
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition"
+                      >
+                        Lupa sandi?
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
+                          placeholder="••••••••"
+                          className="h-auto rounded-xl border-slate-200 px-4 py-3 pr-11 text-sm shadow-none focus-visible:border-brand-500 focus-visible:ring-4 focus-visible:ring-brand-100"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (authError) setAuthError("");
+                          }}
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                        aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
+                      >
+                        <Icon name={showPassword ? "eyeOff" : "eye"} className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Checkbox Ingat Saya */}
-            <div className="flex items-center pt-1">
-              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4 cursor-pointer"
-                />
-                <span>Ingat saya di perangkat ini</span>
-              </label>
-            </div>
+              {/* Checkbox Ingat Saya */}
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex items-center pt-1 space-y-0">
+                    <FormControl>
+                      <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4 cursor-pointer"
+                        />
+                        <span>Ingat saya di perangkat ini</span>
+                      </label>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-            {/* Pesan Error */}
-            {error && (
-              <p id="form-error" role="alert" className="text-sm text-red-600">
-                {error}
-              </p>
-            )}
+              {/* Pesan Error */}
+              {authError && (
+                <p id="form-error" role="alert" className="text-sm text-red-600">
+                  {authError}
+                </p>
+              )}
 
-            {/* Tombol Masuk */}
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              variant="primary"
-              size="lg"
-              rounded="2xl"
-              fullWidth
-              className="mt-2"
-            >
-              Masuk
-            </Button>
-          </form>
+              {/* Tombol Masuk */}
+              <Button
+                type="submit"
+                isLoading={form.formState.isSubmitting}
+                variant="primary"
+                size="lg"
+                rounded="2xl"
+                fullWidth
+                className="mt-2"
+              >
+                Masuk
+              </Button>
+            </form>
+          </Form>
 
           {/* Akun Demo Sementara */}
           <div className="mt-6 rounded-xl border border-dashed border-slate-200 bg-slate-50/80 p-3.5 text-xs text-slate-600">
@@ -267,9 +318,10 @@ export default function LoginPage() {
                   key={acc.email}
                   type="button"
                   onClick={() => {
-                    setEmail(acc.email);
-                    setPassword(acc.password);
-                    setError("");
+                    form.setValue("email", acc.email);
+                    form.setValue("password", acc.password);
+                    form.clearErrors();
+                    setAuthError("");
                   }}
                   className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-[11px] text-slate-700 hover:border-brand-500 hover:bg-brand-50/30 transition"
                 >

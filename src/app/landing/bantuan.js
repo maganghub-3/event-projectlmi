@@ -1,8 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Icon from "./Icon";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import notify from "@/lib/sweetalert";
+import { newsletterSchema } from "@/lib/schemas/newsletter";
 import { BRAND } from "@/constants/brand";
 
 export const FAQS = [
@@ -26,8 +37,20 @@ export const FAQS = [
 
 export default function BantuanSection() {
   const [openFaq, setOpenFaq] = useState(0);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const onSubmitNewsletter = () => {
+    setNewsletterSubscribed(true);
+    notify.toast("Berhasil berlangganan buletin mingguan!");
+    form.reset();
+  };
 
   return (
     <>
@@ -92,31 +115,37 @@ export default function BantuanSection() {
               Terima kasih! Kamu sudah terdaftar di buletin mingguan Teman {BRAND.name}.
             </div>
           ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (newsletterEmail) {
-                  setNewsletterSubscribed(true);
-                  notify.toast("Berhasil berlangganan buletin mingguan!");
-                }
-              }}
-              className="flex flex-col sm:flex-row items-center gap-2.5 max-w-md mx-auto pt-2"
-            >
-              <input
-                type="email"
-                required
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="Masukkan alamat emailmu..."
-                className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-sm outline-none focus:border-brand-600 font-medium"
-              />
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-2xl text-sm shrink-0 shadow-md transition"
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmitNewsletter)}
+                noValidate
+                className="flex flex-col sm:flex-row items-start gap-2.5 max-w-md mx-auto pt-2"
               >
-                Langganan
-              </button>
-            </form>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="w-full text-left">
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Masukkan alamat emailmu..."
+                          className="h-auto rounded-2xl border-slate-300 bg-white px-4 py-3 text-sm font-medium shadow-none focus-visible:border-brand-600 focus-visible:ring-0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-2xl text-sm shrink-0 shadow-md transition"
+                >
+                  Langganan
+                </button>
+              </form>
+            </Form>
           )}
         </div>
       </section>

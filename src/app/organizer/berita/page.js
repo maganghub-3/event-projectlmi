@@ -1,9 +1,5 @@
-import NewsManager from "@/components/news/news-manager";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Kelola Berita - Panel Penyelenggara",
-};
-
-export default function OrganizerBeritaPage() {
-  return <NewsManager role="organizer" />;
+export default function LegacyOrganizerBeritaPage() {
+  redirect("/dashboard-eo/berita");
 }

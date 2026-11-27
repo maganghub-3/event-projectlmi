@@ -2,16 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Navbar from "./Navbar";
 import HeroBanner from "./banner";
 import KategoriSection from "./kategori";
 import EventSection from "./event";
 import BlogSection from "./blog";
 import BantuanSection from "./bantuan";
+import Footer from "./Footer";
 import Icon from "./Icon";
-import notify from "@/lib/sweetalert";
-import { BRAND } from "@/constants/brand";
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -152,21 +150,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Social Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-5 text-xs text-slate-500 font-medium">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold">✓</span>
-              <span>100% Tiket Resmi &amp; Bergaransi</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center"><Icon name="sparkles" className="h-3 w-3" /></span>
-              <span>E-ticket langsung via WhatsApp</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center"><Icon name="shield" className="h-3 w-3" /></span>
-              <span>Bebas Biaya Admin Siluman</span>
-            </div>
-          </div>
+          
 
         </div>
       </section>
@@ -189,80 +173,7 @@ export default function LandingPage() {
         onSelectCategory={handleSelectCategory}
       />
 
-      {/* 5. KEUNGGULAN SECTION (KENAPA PILIH LMI EVENT?)
-      <section id="keunggulan" className="py-16 bg-white border-y border-slate-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-extrabold uppercase tracking-wider text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200/60">
-              Paling Nyaman &amp; Menenangkan
-            </span>
-            <h2 className="text-3xl font-extrabold text-slate-900 mt-2">
-              Kenapa Teman {BRAND.name} Suka Banget?
-            </h2>
-            <p className="text-sm text-slate-500 mt-2">
-              Pengalaman beli tiket yang manusiawi, tanpa biaya tersembunyi, dan selalu siap sedia membantu.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div
-              data-reveal="bottom"
-              style={{ transitionDelay: "50ms" }}
-              className="group p-6 rounded-3xl bg-[#F7F8FC] border border-slate-200/70 hover:border-brand-300 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                <Icon name="shield" className="h-6 w-6" />
-              </div>
-              <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-brand-700 transition-colors">100% Tiket Resmi</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Langsung dari promotor resmi. Ucapkan selamat tinggal pada calo dan rasa was-was tiket palsu.
-              </p>
-            </div>
-
-            <div
-              data-reveal="bottom"
-              style={{ transitionDelay: "150ms" }}
-              className="group p-6 rounded-3xl bg-[#F7F8FC] border border-slate-200/70 hover:border-brand-300 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
-                <Icon name="sparkles" className="h-6 w-6" />
-              </div>
-              <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-brand-700 transition-colors">Cepat Dalam 1 Menit</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Pilih tiket, bayar pakai QRIS, dan e-ticket langsung masuk ke WhatsApp kamu tanpa nunggu lama.
-              </p>
-            </div>
-
-            <div
-              data-reveal="bottom"
-              style={{ transitionDelay: "250ms" }}
-              className="group p-6 rounded-3xl bg-[#F7F8FC] border border-slate-200/70 hover:border-brand-300 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                <Icon name="chat" className="h-6 w-6" />
-              </div>
-              <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-brand-700 transition-colors">CS Manusia Ramah 24/7</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Bukan bot kaku! Ada tim kami yang siap mendengarkan dan membantu kendalamu lewat WhatsApp.
-              </p>
-            </div>
-
-            <div
-              data-reveal="bottom"
-              style={{ transitionDelay: "350ms" }}
-              className="group p-6 rounded-3xl bg-[#F7F8FC] border border-slate-200/70 hover:border-brand-300 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
-                <Icon name="wallet" className="h-6 w-6" />
-              </div>
-              <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-brand-700 transition-colors">Harga Transparan</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Harga yang kamu lihat adalah harga yang kamu bayar. Tanpa biaya siluman di checkout.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section> */}
+      
 
       {/* 6. BLOG & KILAS EVENT KERJASAMA (File: blog.js) */}
       <BlogSection />
@@ -270,79 +181,8 @@ export default function LandingPage() {
       {/* 7. BANTUAN SECTION (File: bantuan.js) */}
       <BantuanSection />
 
-      {/* 8. FOOTER */}
-      <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800 text-sm">
-            
-            <div className="lg:col-span-2 space-y-4">
-              <a href="#beranda" className="inline-flex items-center" aria-label="LMI Event - Beranda">
-                <Image
-                  src="/images/lmi-logo.png"
-                  alt="LMI Event - Lembaga Manajemen Infaq"
-                  width={144}
-                  height={70}
-                  className="h-auto w-32"
-                />
-              </a>
-              <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-                Platform tiket event paling ramah di Indonesia. Kami menghubungkan pencinta musik, seni, kuliner, dan komunitas dengan pengalaman tak terlupakan.
-              </p>
-              <div className="flex items-center gap-3 text-lg">
-                <Icon name="camera" className="h-5 w-5 cursor-pointer hover:text-brand-400 transition" />
-                <Icon name="music" className="h-5 w-5 cursor-pointer hover:text-brand-400 transition" />
-                <Icon name="chat" className="h-5 w-5 cursor-pointer hover:text-brand-400 transition" />
-                <Icon name="globe" className="h-5 w-5 cursor-pointer hover:text-brand-400 transition" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Kota Populer</h4>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><button type="button" onClick={() => { setSelectedCity("Jakarta"); notify.toast("Menampilkan event Jakarta"); }} className="hover:text-white transition">Event di Jakarta</button></li>
-                <li><button type="button" onClick={() => { setSelectedCity("Bandung"); notify.toast("Menampilkan event Bandung"); }} className="hover:text-white transition">Event di Bandung</button></li>
-                <li><button type="button" onClick={() => { setSelectedCity("Surabaya"); notify.toast("Menampilkan event Surabaya"); }} className="hover:text-white transition">Event di Surabaya</button></li>
-                <li><button type="button" onClick={() => { setSelectedCity("Yogyakarta"); notify.toast("Menampilkan event Yogyakarta"); }} className="hover:text-white transition">Event di Yogyakarta</button></li>
-                <li><button type="button" onClick={() => { setSelectedCity("Bali"); notify.toast("Menampilkan event Bali"); }} className="hover:text-white transition">Event di Bali</button></li>
-              </ul>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Kategori</h4>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><button type="button" onClick={() => handleSelectCategory("musik")} className="hover:text-white transition">Konser &amp; Musik</button></li>
-                <li><button type="button" onClick={() => handleSelectCategory("festival")} className="hover:text-white transition">Festival Kuliner</button></li>
-                <li><button type="button" onClick={() => handleSelectCategory("workshop")} className="hover:text-white transition">Workshop Kreatif</button></li>
-                <li><button type="button" onClick={() => handleSelectCategory("seni")} className="hover:text-white transition">Pameran &amp; Seni</button></li>
-                <li><button type="button" onClick={() => handleSelectCategory("olahraga")} className="hover:text-white transition">Olahraga &amp; Healing</button></li>
-              </ul>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Butuh Bantuan?</h4>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><span className="text-slate-300 font-medium">WhatsApp CS:</span> 0812-3456-7890</li>
-                <li><span className="text-slate-300 font-medium">Email:</span> {BRAND.email}</li>
-                <li><span className="text-slate-300 font-medium">Jam Layanan:</span> 08.00 - 23.00 WIB</li>
-                <li><a href="#bantuan" className="hover:text-white underline">Pusat Bantuan &amp; FAQ</a></li>
-                <li><a href="/hubungi-kami" className="hover:text-white underline">Hubungi Kami</a></li>
-              </ul>
-            </div>
-
-          </div>
-
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>{BRAND.copyright}</p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-slate-300 transition">Syarat &amp; Ketentuan</a>
-              <span>•</span>
-              <a href="#" className="hover:text-slate-300 transition">Kebijakan Privasi</a>
-              <span>•</span>
-              <a href="#" className="hover:text-slate-300 transition">Panduan Keamanan</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* 8. FOOTER (File: Footer.js) */}
+      <Footer />
 
     </div>
   );
