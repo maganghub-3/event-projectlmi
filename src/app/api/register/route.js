@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "../../../lib/auth";
-import { requireAuth } from "../../../lib/authMiddleware";
+import { hashPassword } from "@/lib/auth";
+import { requireRole } from "@/lib/authMiddleware";
 
 export async function POST(request) {
   try {
@@ -43,12 +43,21 @@ export async function POST(request) {
   }
 }
 
-//develop purpose
 export async function GET(request) {
-  // const { response } = requireAuth(request);
-  // if (response) return response;
-  const res = await prisma.pengguna.findMany({
-    omit: { kataSandiHash: true },
-  });
-  return NextResponse.json(res);
+  const { response } = requireRole(request, "SUPER_ADMIN");
+  if (response) return response;
+
+  try {
+    const data = await prisma.pengguna.findMany({
+      omit: { kataSandiHash: true },
+    });
+    return NextResponse.json(
+      data.length == 0 ? { message: "Data pengguna Kosong" } : data,
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Gagal mendapatkan data pengguna" },
+      { status: 500 },
+    );
+  }
 }

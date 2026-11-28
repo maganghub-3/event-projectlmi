@@ -6,10 +6,18 @@ import { requireRole } from "@/lib/authMiddleware";
 import { validateCreatePesanan } from "@/lib/pesanan/validation";
 import { createPesanan } from "@/lib/pesanan/service";
 import { CheckoutError, PaymentGatewayError } from "@/lib/pesanan/errors";
+import { prisma } from "@/lib/prisma";
 
 // Helper untuk mengembalikan error validasi dengan status 400.
 function badRequest(error) {
   return NextResponse.json({ error }, { status: 400 });
+}
+
+export async function GET() {
+  const data = await prisma.pesanan.findMany();
+  return NextResponse.json(
+    data.length >= 1 ? data : { message: "pesanan kosong" },
+  );
 }
 
 // Handler POST /api/pesanan: membuat pesanan baru untuk pembeli.

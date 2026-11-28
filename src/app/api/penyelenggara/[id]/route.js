@@ -103,6 +103,19 @@ export async function PUT(request, context) {
       );
     }
 
+    if (user.peran === "SUPER_ADMIN") {
+      if (!data.status || (data.status && Object.keys(data).length > 1)) {
+        return badRequest(
+          "SUPER_ADMIN Tidak bisa mengubah profil penyelenggara",
+        );
+      }
+      const penyelenggara = await prisma.penyelenggara.update({
+        where: { id: penyelenggaraId },
+        data,
+      });
+      return NextResponse.json(penyelenggara);
+    }
+
     if (user.peran === "ADMIN_EVENT") {
       const pengguna = await prisma.pengguna.findUnique({
         where: { id: user.id },
@@ -114,14 +127,13 @@ export async function PUT(request, context) {
       if (pengguna.penyelenggaraId !== penyelenggaraId) {
         return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
       }
+      const penyelenggara = await prisma.penyelenggara.update({
+        where: { id: penyelenggaraId },
+        data,
+      });
+
+      return NextResponse.json(penyelenggara);
     }
-
-    const penyelenggara = await prisma.penyelenggara.update({
-      where: { id: penyelenggaraId },
-      data,
-    });
-
-    return NextResponse.json(penyelenggara);
   } catch (err) {
     return NextResponse.json(
       { error: "Gagal memperbarui penyelenggara" },
